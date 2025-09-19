@@ -4,67 +4,88 @@
 To design and implement a LangChain Expression Language (LCEL) expression that utilizes at least two prompt parameters and three key components (prompt, model, and output parser), and to evaluate its functionality by analyzing relevant examples of its application in real-world scenarios.
 
 ### PROBLEM STATEMENT:
-Design and integrate a Python function that calculates the volume of a cylinder, and enable the function to be called through a chat completion system, simulating an LLM interface.
-## DESIGN STEPS:  
-1. **STEP 1:** Create a prompt template with placeholders for at least two parameters.  
-2. **STEP 2:** Use LangChain's language model to process the prompt and generate a response.  
-3. **STEP 3:** Implement an output parser to extract structured results from the model's response.
+LangChain Expression Language (LCEL) simplifies interactions with large language models (LLMs) by creating reusable and structured expressions. This task involves:
 
+1. Designing an LCEL expression with dynamic prompt parameters (e.g., topic and length).
+2. Using three essential components: Prompt- A structured input with placeholders for parameters, Model- An LLM used to process the prompt and Output Parser- A parser to interpret the model's output.
+3. Demonstrating the LCEL expression's functionality in generating structured, relevant outputs.
+
+### DESIGN STEPS:
+
+#### STEP 1: Define the Parameters
+Identify the parameters (topic and length) to allow dynamic customization of prompts.
+
+#### STEP 2: Design the Prompt Template
+Create a structured prompt template with placeholders for parameters.
+
+#### STEP 3: Select the Model
+Use an LLM, such as OpenAI's GPT, to process the prompt.
+
+#### STEP 4: Implement the Output Parser
+Design an output parser to format and structure the model's output.
+
+#### STEP 5: Integrate Components into an LCEL Expression
+Combine the prompt template, model, and output parser into a LangChain pipeline.
+
+#### STEP 6: Evaluate with Examples
+Test the LCEL expression using multiple input values for topic and length.
 
 ### PROGRAM:
-Name:Kasivishvanath V
-Reg No:212222040073
+Name:V.Kasivishvanath
+Reg no:212222040073
 ```
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from langchain.chat_models import ChatOpenAI
-from langchain.output_parsers import ResponseSchema
-from langchain.schema.output_parser import StrOutputParser
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 
-# Define the PromptTemplate
-prompt = PromptTemplate(
-    template="""
-You are a travel assistant. Based on the following inputs, recommend a destination:
-- Preferred activity: {activity}
-- Budget (in USD): {budget}
-
-Provide a response strictly in JSON format:
-{{
-    "destination": "<destination>",
-    "activity": "<activity>",
-    "cost": "<cost>"
-}}
-""",
-    input_variables=["activity", "budget"],
+# Step 1: Define Parameters and Prompt Template
+prompt_template = PromptTemplate(
+    input_variables=["topic", "length"],
+    template=(
+        "You are a helpful assistant. Please provide the following in valid JSON format:\n"
+        "- A concise summary of {topic}.\n"
+        "- The word count of the summary.\n\n"
+        "Response should look like this:\n"
+        "{{\n"
+        '  "summary": "Your concise summary here.",\n'
+        '  "word_count": 123\n'
+        "}}\n\n"
+        "Write a {length}-word summary about {topic}. Be concise and factual."
+    )
 )
 
-# Define the Output Parser
+# Step 2: Define the Output Parser
 response_schemas = [
-    ResponseSchema(name="destination", description="Recommended travel destination"),
-    ResponseSchema(name="activity", description="Suggested activity at the destination"),
-    ResponseSchema(name="cost", description="Estimated cost in USD for the trip"),
+    ResponseSchema(name="summary", description="A concise summary of the topic."),
+    ResponseSchema(name="word_count", description="The number of words in the summary."),
 ]
-output_parser = StrOutputParser()
+output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
 
-# Initialize the LLM
-llm = ChatOpenAI(model="gpt-4-0613", temperature=0)
+# Step 3: Create the LangChain LLM Chain with Gemini Model
+API_KEY = "**************************"
+llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3, google_api_key=API_KEY)
 
-# Create the LangChain Expression (LLM Chain)
-chain = LLMChain(llm=llm, prompt=prompt, output_parser=output_parser)
+chain = LLMChain(prompt=prompt_template, llm=llm, output_parser=output_parser)
 
-# Test the chain with an example
-input_data = {"activity": "hiking", "budget": 1000}
-result = chain.run(input_data)
+# Step 4: Execute the Chain with Examples
+examples = [
+    {"topic": "Climate Change", "length": "50"},
+    {"topic": "Artificial Intelligence", "length": "30"},
+]
 
-# Parse the structured output
-parsed_result = output_parser.parse(result)
+for example in examples:
+    try:
+        result = chain.run(example)
+        print(f"Input: {example}")
+        print(f"Output: {result}\n")
+    except Exception as e:
+        print(f"Error for input {example}: {e}\n")
+```
 
-# Display the result
-print("Recommendation:", parsed_result)
-`````
 ### OUTPUT:
-![Screenshot (196)](https://github.com/user-attachments/assets/96a1febe-d68c-4e18-bcf9-3e7c2721ac1b)
 
+![exp-2 op](https://github.com/user-attachments/assets/a556acce-964f-4d5f-bcd2-ff300495ac9a)
 
 ### RESULT:
-Hence,the program to design and implement a LangChain Expression Language (LCEL) expression that utilizes at least two prompt parameters and three key components (prompt, model, and output parser), and to evaluate its functionality by analyzing relevant examples of its application in real-world scenarios is written and successfully executed.
+  Thus, the LangChain Expression Language (LCEL) expression that utilizes two prompt parameters and three key components (prompt, model, and output parser) was designed and implemented successfully. And also evaluated its functionality by analyzing relevant examples of its application in real-world scenarios.
