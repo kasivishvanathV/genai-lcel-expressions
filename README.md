@@ -4,88 +4,79 @@
 To design and implement a LangChain Expression Language (LCEL) expression that utilizes at least two prompt parameters and three key components (prompt, model, and output parser), and to evaluate its functionality by analyzing relevant examples of its application in real-world scenarios.
 
 ### PROBLEM STATEMENT:
-LangChain Expression Language (LCEL) simplifies interactions with large language models (LLMs) by creating reusable and structured expressions. This task involves:
-
-1. Designing an LCEL expression with dynamic prompt parameters (e.g., topic and length).
-2. Using three essential components: Prompt- A structured input with placeholders for parameters, Model- An LLM used to process the prompt and Output Parser- A parser to interpret the model's output.
-3. Demonstrating the LCEL expression's functionality in generating structured, relevant outputs.
 
 ### DESIGN STEPS:
 
-#### STEP 1: Define the Parameters
-Identify the parameters (topic and length) to allow dynamic customization of prompts.
+#### STEP 1:Create a template with at least two input variables
 
-#### STEP 2: Design the Prompt Template
-Create a structured prompt template with placeholders for parameters.
+#### STEP 2:Choose a language model (like GPT-4) to process the prompt.
 
-#### STEP 3: Select the Model
-Use an LLM, such as OpenAI's GPT, to process the prompt.
-
-#### STEP 4: Implement the Output Parser
-Design an output parser to format and structure the model's output.
-
-#### STEP 5: Integrate Components into an LCEL Expression
-Combine the prompt template, model, and output parser into a LangChain pipeline.
-
-#### STEP 6: Evaluate with Examples
-Test the LCEL expression using multiple input values for topic and length.
+#### STEP 3:Set up a parser to extract structured data.
 
 ### PROGRAM:
-Name:V.Kasivishvanath
-Reg no:212222040073
+```
+NAME:V.KASIVISHVANATH
+REG NO: 212222040073
+```
 ```
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.output_parsers import StructuredOutputParser, ResponseSchema
+from langchain.chat_models import ChatOpenAI
+from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 
-# Step 1: Define Parameters and Prompt Template
-prompt_template = PromptTemplate(
-    input_variables=["topic", "length"],
-    template=(
-        "You are a helpful assistant. Please provide the following in valid JSON format:\n"
-        "- A concise summary of {topic}.\n"
-        "- The word count of the summary.\n\n"
-        "Response should look like this:\n"
-        "{{\n"
-        '  "summary": "Your concise summary here.",\n'
-        '  "word_count": 123\n'
-        "}}\n\n"
-        "Write a {length}-word summary about {topic}. Be concise and factual."
-    )
+
+# Define the PromptTemplate
+prompt = PromptTemplate(
+    template="""- Preferred activity: {activity}
+- Budget (in USD): {budget}
+
+Make sure the suggested destination is **Switzerland** if possible.  
+
+Provide a response strictly in JSON format.
+
+{format_instructions}
+""",
+    input_variables=["activity", "budget"],
+    partial_variables={"format_instructions": format_instructions},
 )
 
-# Step 2: Define the Output Parser
+# Define response schema
 response_schemas = [
-    ResponseSchema(name="summary", description="A concise summary of the topic."),
-    ResponseSchema(name="word_count", description="The number of words in the summary."),
+    ResponseSchema(name="destination", description="Recommended travel destination"),
+    ResponseSchema(name="activity", description="Suggested activity at the destination"),
+    ResponseSchema(name="cost", description="Estimated cost in USD for the trip"),
 ]
+
+# Create the structured output parser
 output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
 
-# Step 3: Create the LangChain LLM Chain with Gemini Model
-API_KEY = "**************************"
-llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3, google_api_key=API_KEY)
+# Format instructions tell the LLM the exact JSON structure required
+format_instructions = output_parser.get_format_instructions()
 
-chain = LLMChain(prompt=prompt_template, llm=llm, output_parser=output_parser)
 
-# Step 4: Execute the Chain with Examples
-examples = [
-    {"topic": "Climate Change", "length": "50"},
-    {"topic": "Artificial Intelligence", "length": "30"},
-]
 
-for example in examples:
-    try:
-        result = chain.run(example)
-        print(f"Input: {example}")
-        print(f"Output: {result}\n")
-    except Exception as e:
-        print(f"Error for input {example}: {e}\n")
+# Initialize the LLM
+llm = ChatOpenAI(model="gpt-4-0613", temperature=0.7)
+
+# Create the chain
+chain = LLMChain(llm=llm, prompt=prompt)
+
+# Test the chain with an example
+input_data = {"activity": "hiking", "budget": 900}
+result = chain.run(input_data)
+
+# Parse JSON into Python dict
+parsed_result = output_parser.parse(result)
+
+print("Recommendation:", parsed_result)
+
 ```
 
 ### OUTPUT:
+<img width="1920" height="964" alt="Screenshot 2025-09-19 145717" src="https://github.com/user-attachments/assets/ed741db2-90d5-453f-9d14-9e32c6ee870a" />
+<img width="1919" height="965" alt="Screenshot 2025-09-19 145728" src="https://github.com/user-attachments/assets/d3b1639c-3292-4dc3-a2dc-d68f78d990f1" />
 
-![exp-2 op](https://github.com/user-attachments/assets/a556acce-964f-4d5f-bcd2-ff300495ac9a)
 
-### RESULT:
-  Thus, the LangChain Expression Language (LCEL) expression that utilizes two prompt parameters and three key components (prompt, model, and output parser) was designed and implemented successfully. And also evaluated its functionality by analyzing relevant examples of its application in real-world scenarios.
+
+
+### RESULT:Thus, the program is developed and executed successfully to implement a LangChain Expression Language (LCEL) expression that incorporates at least two input parameters and the three essential components—prompt, model, and output parser—while also demonstrating its functionality through analysis of practical real-world examples.
